@@ -25,6 +25,20 @@
 #include <mach/msm_otg.h>
 #include <mach/msm_hsusb.h>
 
+#if defined(CONFIG_MACH_ES209RA) && defined(CONFIG_MAX17040_FUELGAUGE)
+enum semc_charger {
+	NO_CHARGER = 0,
+	USB_CHARGER,
+	WALL_CHARGER
+};
+
+typedef void (*usb_connect_status_callback_t) (enum semc_charger connected, uint32_t current_ma);
+
+void msm_chg_rpc_register_semc_callback(usb_connect_status_callback_t connect_status_fn);
+void msm_chg_rpc_unregister_semc_callback(void);
+void msm_chg_rpc_semc_get_usb_connected(enum semc_charger *connected, u16 *max_current);
+#endif
+
 #if defined(CONFIG_MSM_ONCRPCROUTER) && !defined(CONFIG_ARCH_MSM8X60)
 int msm_hsusb_rpc_connect(void);
 int msm_hsusb_phy_reset(void);
