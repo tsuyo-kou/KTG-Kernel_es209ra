@@ -153,6 +153,7 @@ struct mmc_host {
 #define MMC_CAP_DISABLE		(1 << 7)	/* Can the host be disabled */
 #define MMC_CAP_NONREMOVABLE	(1 << 8)	/* Nonremovable e.g. eMMC */
 #define MMC_CAP_WAIT_WHILE_BUSY	(1 << 9)	/* Waits while card is busy */
+#define MMC_CAP_POWER_OFF_CARD	(1 << 10)	/* Can power off after boot */
 
 	mmc_pm_flag_t		pm_caps;	/* supported pm features */
 
@@ -223,9 +224,10 @@ struct mmc_host {
 	} embedded_sdio_data;
 #endif
 
+    int    last_suspend_error;
+
 #ifdef CONFIG_MMC_PERF_PROFILING
 	struct {
-
 		unsigned long rbytes_mmcq; /* Rd bytes MMC queue */
 		unsigned long wbytes_mmcq; /* Wr bytes MMC queue */
 		unsigned long rbytes_drv;  /* Rd bytes MMC Host  */
@@ -278,8 +280,8 @@ extern int mmc_resume_bus(struct mmc_host *host);
 extern int mmc_suspend_host(struct mmc_host *, pm_message_t);
 extern int mmc_resume_host(struct mmc_host *);
 
-extern void mmc_power_save_host(struct mmc_host *host);
-extern void mmc_power_restore_host(struct mmc_host *host);
+extern int mmc_power_save_host(struct mmc_host *host);
+extern int mmc_power_restore_host(struct mmc_host *host);
 
 extern void mmc_detect_change(struct mmc_host *, unsigned long delay);
 extern void mmc_request_done(struct mmc_host *, struct mmc_request *);

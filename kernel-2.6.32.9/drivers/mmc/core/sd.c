@@ -22,6 +22,10 @@
 #include "mmc_ops.h"
 #include "sd_ops.h"
 
+#ifdef CONFIG_MMC_SD_CHECK_BOOT_SIGNATURE
+#include "sd_check_mbr.h"
+#endif
+
 static const unsigned int tran_exp[] = {
 	10000,		100000,		1000000,	10000000,
 	0,		0,		0,		0
@@ -663,12 +667,16 @@ static int mmc_sd_resume(struct mmc_host *host)
 	return err;
 }
 
-static void mmc_sd_power_restore(struct mmc_host *host)
+static int mmc_sd_power_restore(struct mmc_host *host)
 {
+	int ret;
+
 	host->card->state &= ~MMC_STATE_HIGHSPEED;
 	mmc_claim_host(host);
-	mmc_sd_init_card(host, host->ocr, host->card);
+	ret = mmc_sd_init_card(host, host->ocr, host->card);
 	mmc_release_host(host);
+
+	return ret;
 }
 
 #ifdef CONFIG_MMC_UNSAFE_RESUME
@@ -794,6 +802,13 @@ int mmc_attach_sd(struct mmc_host *host, u32 ocr)
 	err = mmc_sd_init_card(host, host->ocr, NULL);
 	if (err)
 		goto err;
+#endif
+
+#ifdef CONFIG_MMC_SD_CHECK_BOOT_SIGNATURE
+	if (mmc_sd_check_boot_signature(host->card)) {
+		err = -EFAULT;
+		goto err;
+	}
 #endif
 
 	mmc_release_host(host);
