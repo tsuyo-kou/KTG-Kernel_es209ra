@@ -374,8 +374,7 @@ static int max17040_is_chg(struct max17040_data *data)
 {
 	if (!data->pdata)
 		return 0;
-	if(data->tech == POWER_SUPPLY_TECHNOLOGY_UNKNOWN)
-		printk("----- [ POWER_SUPPLY_TECHNOLOGY_UNKNOWN ] -----\n");
+
 	return (data->curr_temp > data->pdata->chg_min_temp &&
 			data->curr_temp	<= data->pdata->chg_max_temp &&
 			data->tech != POWER_SUPPLY_TECHNOLOGY_UNKNOWN);
@@ -383,17 +382,12 @@ static int max17040_is_chg(struct max17040_data *data)
 
 static int max17040_get_status(struct max17040_data *data)
 {
-	printk("----- [ max17040_is_chg : %d ] -----\n",max17040_is_chg(data));
 	if (power_supply_am_i_supplied(&data->bat_ps)) {
-		if (max17040_is_chg(data)){
-	printk("----- [ POWER_SUPPLY_STATUS_CHARGING ] -----\n");
+		if (max17040_is_chg(data))
 			return POWER_SUPPLY_STATUS_CHARGING;
-		}else{
-	printk("----- [ POWER_SUPPLY_STATUS_NOT_CHARGING ] -----\n");
+		else
 			return POWER_SUPPLY_STATUS_NOT_CHARGING;
-		}
 	} else {
-	printk("----- [ POWER_SUPPLY_STATUS_DISCHARGING ] -----\n");
 		return POWER_SUPPLY_STATUS_DISCHARGING;
 	}
 }
