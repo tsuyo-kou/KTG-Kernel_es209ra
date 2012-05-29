@@ -359,8 +359,12 @@ static int max17040_get_supplier_data(struct device *dev, void *data)
 			max17040_update_rcomp(this);
 		}
 
-		if (!pst->get_property(pst, POWER_SUPPLY_PROP_TECHNOLOGY, &ret))
+		if (!pst->get_property(pst, POWER_SUPPLY_PROP_TECHNOLOGY, &ret)){
+#ifdef CONFIG_MACH_ES209RA
+			ret.intval = POWER_SUPPLY_TECHNOLOGY_LIPO;
+#endif
 			this->tech = ret.intval;
+		}
 	}
 
 	return 0;
@@ -370,7 +374,8 @@ static int max17040_is_chg(struct max17040_data *data)
 {
 	if (!data->pdata)
 		return 0;
-
+	if(data->tech == POWER_SUPPLY_TECHNOLOGY_UNKNOWN)
+		printk("----- [ POWER_SUPPLY_TECHNOLOGY_UNKNOWN ] -----\n");
 	return (data->curr_temp > data->pdata->chg_min_temp &&
 			data->curr_temp	<= data->pdata->chg_max_temp &&
 			data->tech != POWER_SUPPLY_TECHNOLOGY_UNKNOWN);
@@ -378,12 +383,17 @@ static int max17040_is_chg(struct max17040_data *data)
 
 static int max17040_get_status(struct max17040_data *data)
 {
+	printk("----- [ max17040_is_chg : %d ] -----\n",max17040_is_chg(data));
 	if (power_supply_am_i_supplied(&data->bat_ps)) {
-		if (max17040_is_chg(data))
+		if (max17040_is_chg(data)){
+	printk("----- [ POWER_SUPPLY_STATUS_CHARGING ] -----\n");
 			return POWER_SUPPLY_STATUS_CHARGING;
-		else
+		}else{
+	printk("----- [ POWER_SUPPLY_STATUS_NOT_CHARGING ] -----\n");
 			return POWER_SUPPLY_STATUS_NOT_CHARGING;
+		}
 	} else {
+	printk("----- [ POWER_SUPPLY_STATUS_DISCHARGING ] -----\n");
 		return POWER_SUPPLY_STATUS_DISCHARGING;
 	}
 }
@@ -429,6 +439,12 @@ static int max17040_bat_get_property(struct power_supply *bat_ps,
 
 		val->intval = this->curr_soc;
 		break;
+#ifdef CONFIG_MACH_ES209RA
+	case POWER_SUPPLY_PROP_TECHNOLOGY:
+		val->intval = POWER_SUPPLY_TECHNOLOGY_LIPO;
+		break;
+#endif
+
 	default:
 		return -EINVAL;
 	}
@@ -448,6 +464,9 @@ static void max17040_bat_external_power_changed(struct power_supply *bat_ps)
 
 static enum power_supply_property max17040_bat_main_props[] = {
 	POWER_SUPPLY_PROP_STATUS,
+#ifdef CONFIG_MACH_ES209RA
+	POWER_SUPPLY_PROP_TECHNOLOGY,
+#endif
 	POWER_SUPPLY_PROP_VOLTAGE_NOW,
 	POWER_SUPPLY_PROP_VOLTAGE_MAX,
 	POWER_SUPPLY_PROP_VOLTAGE_MIN_DESIGN,
