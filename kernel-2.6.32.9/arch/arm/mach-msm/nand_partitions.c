@@ -114,7 +114,7 @@ struct flash_partition_table {
 	struct flash_partition_entry part_entry[16];
 };
 
-#ifdef CONFIG_MACH_ES209RA
+#ifdef CONFIG_ES209RA_BYPASS_BOOTLOADER
 static struct mtd_partition nand_partitions[] = {
         {
                 .name           = "appslog",
@@ -194,7 +194,7 @@ static int get_nand_partitions(void)
 	if (!partition_table) {
 		printk(KERN_WARNING "%s: no flash partition table in shared "
 		       "memory\n", __func__);
-#ifdef CONFIG_MACH_ES209RA
+#ifdef CONFIG_ES209RA_BYPASS_BOOTLOADER
 		msm_nand_data.nr_parts = ARRAY_SIZE(nand_partitions);
 		msm_nand_data.parts = nand_partitions;
 		return 0;

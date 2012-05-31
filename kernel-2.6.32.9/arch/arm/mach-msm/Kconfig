@@ -1498,6 +1498,13 @@ config ES209RA_INPUT_GPIO_MATRIX
 	   1. Support discard timer for long key press.
 	   2. Pull-up the KR line when the other KR line is being driven.
 
+config ES209RA_BYPASS_BOOTLOADER
+	bool "ES209RA Bypass BootLoader"
+	depends on MACH_ES209RA
+	default n
+	help
+	  Enable Bypass bootloader patch on the es209ra platform.
+
 config SEMC_LOW_BATT_SHUTDOWN
 	bool "Low-Battery Shutdown support"
 	depends on (ARCH_MSM && MSM_ONCRPCROUTER)
